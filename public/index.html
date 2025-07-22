@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VERIS Incident Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    #filters {
+      margin-bottom: 15px;
+    }
+
+    #results {
+      margin-top: 20px;
+      max-height: 600px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background-color: #f9f9f9;
+    }
+
+    .result-item {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 VERIS Incident Search</h1>
+
+  <div id="filters">
+    <input type="text" id="searchBox" placeholder="Search anything...">
+
+    <select id="actorFilter">
+      <option value="">Actor Variety</option>
+      <option value="External">External</option>
+      <option value="Internal">Internal</option>
+      <option value="Partner">Partner</option>
+    </select>
+
+    <select id="actionFilter">
+      <option value="">Action Variety</option>
+      <option value="Hacking">Hacking</option>
+      <option value="Malware">Malware</option>
+      <option value="Social">Social</option>
+      <option value="Physical">Physical</option>
+    </select>
+
+    <select id="assetFilter">
+      <option value="">Asset Variety</option>
+      <option value="Server">Server</option>
+      <option value="Desktop">Desktop</option>
+      <option value="Network">Network</option>
+      <option value="Kiosk/Terminal">Kiosk/Terminal</option>
+    </select>
+
+    <button onclick="search()">Search</button>
+  </div>
+
+  <div id="results">
+    <em>Results will appear here...</em>
+  </div>
+
+  <script>
+    async function search() {
+      const query = document.getElementById("searchBox").value;
+      const actor = document.getElementById("actorFilter").value;
+      const action = document.getElementById("actionFilter").value;
+      const asset = document.getElementById("assetFilter").value;
+
+      const params = new URLSearchParams({ q: query, actor, action, asset });
+
+      const response = await fetch(`/search?${params.toString()}`);
+      const data = await response.json();
+
+      const resultsBox = document.getElementById("results");
+      resultsBox.innerHTML = "";
+
+      if (!data.length) {
+        resultsBox.innerHTML = "<em>No results found.</em>";
+        return;
+      }
+
+      data.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "result-item";
+
+        div.innerHTML = `
+          <strong>Summary:</strong> ${item.summary || "N/A"}<br>
+          <strong>Incident ID:</strong> ${item.incident_id || "N/A"}<br>
+          <strong>Victim Name:</strong> ${item.victim?.name || "N/A"}<br>
+          <strong>Victim Country:</strong> ${item.victim?.country || "N/A"}<br>
+          <strong>Victim Industry:</strong> ${item.victim?.industry || "N/A"}<br>
+          <strong>Confidence:</strong> ${item.confidence || "N/A"}<br>
+          <strong>Targeted:</strong> ${item.targeted || "N/A"}<br>
+          <strong>Reference:</strong> <a href="${item.reference || '#'}" target="_blank">${item.reference || "N/A"}</a><br>
+        `;
+
+        resultsBox.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
