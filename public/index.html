@@ -174,25 +174,25 @@
     });
   }
 
-  // NEW: Populate filters on load
-  window.onload = async function () {
-    const res = await fetch("https://itlabbackend.onrender.com/filters");
-    const filters = await res.json();
+window.onload = async function () {
+  const res = await fetch("https://itlabbackend.onrender.com/filters");
+  const filters = await res.json();
 
-    populateDropdown("actorFilter", filters.actors);
-    populateDropdown("actionFilter", filters.actions);
-    populateDropdown("assetFilter", filters.assets);
-  };
+  populateDropdown("actorFilter", filters.actors);
+  populateDropdown("actionFilter", filters.actions);
+  populateDropdown("assetFilter", filters.assets);
+};
 
-  function populateDropdown(id, options) {
-    const select = document.getElementById(id);
-    options.forEach(opt => {
-      const option = document.createElement("option");
-      option.value = opt;
-      option.textContent = opt;
-      select.appendChild(option);
-    });
-  }
+function populateDropdown(id, options) {
+  const select = document.getElementById(id);
+  options.forEach(opt => {
+    const option = document.createElement("option");
+    option.value = opt;
+    option.textContent = opt;
+    select.appendChild(option);
+  });
+}
+  
 </script>
   </script>
   
