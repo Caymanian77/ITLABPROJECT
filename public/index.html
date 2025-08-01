@@ -112,29 +112,22 @@
   <div id="filters">
     <input type="text" id="searchBox" placeholder="Search anything...">
 
-    <select id="actorFilter">
-      <option value="">Actor Variety</option>
-      <option value="External">External</option>
-      <option value="Internal">Internal</option>
-      <option value="Partner">Partner</option>
-    </select>
+   <select id="actorFilter">
+  <option value="">Actor Variety</option>
+  <option value="Unknown">Unknown</option>
+  <option value="End-user">End-user</option>
+</select>
 
-    <select id="actionFilter">
-      <option value="">Action Variety</option>
-      <option value="Hacking">Hacking</option>
-      <option value="Malware">Malware</option>
-      <option value="Social">Social</option>
-      <option value="Physical">Physical</option>
-    </select>
+<select id="actionFilter">
+  <option value="">Action Variety</option>
+  <option value="Privilege abuse">Privilege abuse</option>
+  <option value="Bribery">Bribery</option>
+</select>
 
-    <select id="assetFilter">
-      <option value="">Asset Variety</option>
-      <option value="Server">Server</option>
-      <option value="Desktop">Desktop</option>
-      <option value="Network">Network</option>
-      <option value="Kiosk/Terminal">Kiosk/Terminal</option>
-    </select>
-
+<select id="assetFilter">
+  <option value="">Asset Variety</option>
+  <option value="S - Database">S - Database</option>
+</select>
     <button onclick="search()">Search</button>
   </div>
 
@@ -143,43 +136,65 @@
   </div>
 
   <script>
-    async function search() {
-      const query = document.getElementById("searchBox").value;
-      const actor = document.getElementById("actorFilter").value;
-      const action = document.getElementById("actionFilter").value;
-      const asset = document.getElementById("assetFilter").value;
+     async function search() {
+    const query = document.getElementById("searchBox").value;
+    const actor = document.getElementById("actorFilter").value;
+    const action = document.getElementById("actionFilter").value;
+    const asset = document.getElementById("assetFilter").value;
 
-      const params = new URLSearchParams({ q: query, actor, action, asset });
+    const params = new URLSearchParams({ q: query, actor, action, asset });
 
-      const response = await fetch(`https://itlabbackend.onrender.com/search?${params.toString()}`);
-      const data = await response.json();
+    const response = await fetch(`https://itlabbackend.onrender.com/search?${params.toString()}`);
+    const data = await response.json();
 
-      const resultsBox = document.getElementById("results");
-      resultsBox.innerHTML = "";
+    const resultsBox = document.getElementById("results");
+    resultsBox.innerHTML = "";
 
-      if (!data.length) {
-        resultsBox.innerHTML = "<em>No results found.</em>";
-        return;
-      }
-
-      data.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "result-item";
-
-        div.innerHTML = `
-          <strong>Summary:</strong> ${item.summary || "N/A"}<br>
-          <strong>Incident ID:</strong> ${item.incident_id || "N/A"}<br>
-          <strong>Victim Name:</strong> ${item.victim?.name || "N/A"}<br>
-          <strong>Victim Country:</strong> ${item.victim?.country || "N/A"}<br>
-          <strong>Victim Industry:</strong> ${item.victim?.industry || "N/A"}<br>
-          <strong>Confidence:</strong> ${item.confidence || "N/A"}<br>
-          <strong>Targeted:</strong> ${item.targeted || "N/A"}<br>
-          <strong>Reference:</strong> <a href="${item.reference || '#'}" target="_blank">${item.reference || "N/A"}</a>
-        `;
-
-        resultsBox.appendChild(div);
-      });
+    if (!data.length) {
+      resultsBox.innerHTML = "<em>No results found.</em>";
+      return;
     }
+
+    data.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "result-item";
+
+      div.innerHTML = `
+        <strong>Summary:</strong> ${item.summary || "N/A"}<br>
+        <strong>Incident ID:</strong> ${item.incident_id || "N/A"}<br>
+        <strong>Victim Name:</strong> ${item.victim?.name || "N/A"}<br>
+        <strong>Victim Country:</strong> ${item.victim?.country || "N/A"}<br>
+        <strong>Victim Industry:</strong> ${item.victim?.industry || "N/A"}<br>
+        <strong>Confidence:</strong> ${item.confidence || "N/A"}<br>
+        <strong>Targeted:</strong> ${item.targeted || "N/A"}<br>
+        <strong>Reference:</strong> <a href="${item.reference || '#'}" target="_blank">${item.reference || "N/A"}</a>
+      `;
+
+      resultsBox.appendChild(div);
+    });
+  }
+
+  // NEW: Populate filters on load
+  window.onload = async function () {
+    const res = await fetch("https://itlabbackend.onrender.com/filters");
+    const filters = await res.json();
+
+    populateDropdown("actorFilter", filters.actors);
+    populateDropdown("actionFilter", filters.actions);
+    populateDropdown("assetFilter", filters.assets);
+  };
+
+  function populateDropdown(id, options) {
+    const select = document.getElementById(id);
+    options.forEach(opt => {
+      const option = document.createElement("option");
+      option.value = opt;
+      option.textContent = opt;
+      select.appendChild(option);
+    });
+  }
+</script>
   </script>
+  
 </body>
 </html>
